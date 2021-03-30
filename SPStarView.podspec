@@ -10,6 +10,7 @@ Pod::Spec.new do |spec|
   spec.source_files   = "Classes", "Classes/**/*"
   spec.exclude_files  = "Classes/Exclude"
   spec.swift_version  = '5.0'
+  spec.framework      = 'JSONKit'
   spec.dependency "JSONKit"
 
 end
