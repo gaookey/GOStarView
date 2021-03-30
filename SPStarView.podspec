@@ -8,9 +8,9 @@ Pod::Spec.new do |spec|
   spec.platform       = :ios, "10.0"
   spec.source         = { :git => "https://github.com/swiftprimer/SPStarView.git", :tag => "#{spec.version}" }
   spec.source_files   = "Classes", "Classes/**/*"
-  spec.exclude_files  = "Classes/Exclude"
+  #spec.exclude_files  = "Classes/Exclude"
   spec.swift_version  = '5.0'
-  spec.framework      = 'JSONKit'
-  spec.dependency "JSONKit"
+  #spec.framework      = 'SnapKit'
+  spec.dependency "SnapKit"
 
 end
