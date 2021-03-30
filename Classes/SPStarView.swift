@@ -70,8 +70,16 @@ public class SPStarView: UIView {
             return width / height
         }
     }
-    public var backImage = UIImage(named: "SPStarView.bundle/star_normal.png")
-    public var frontImage = UIImage(named: "SPStarView.bundle/star_select.png")
+    public var backImage = UIImage(named: "SPStarView.bundle/star_normal.png") {
+        willSet {
+            backImageView.image = newValue
+        }
+    }
+    public var frontImage = UIImage(named: "SPStarView.bundle/star_select.png") {
+        willSet {
+            frontImageView.image = newValue
+        }
+    }
     
     
     private lazy var backImageView = UIImageView(image: backImage)
