@@ -5,6 +5,7 @@ Pod::Spec.new do |spec|
   spec.homepage       = "https://github.com/swiftprimer/SPStarView.git"
   spec.license        = "MIT"
   spec.author         = { "高文立" => "swiftprimer@foxmail.com" }
+  spec.platform       = :ios, "10.0"
   spec.source         = { :git => "https://github.com/swiftprimer/SPStarView.git", :tag => "#{spec.version}" }
   spec.source_files   = "Classes", "Classes/**/*"
   spec.exclude_files  = "Classes/Exclude"
