@@ -1,7 +1,5 @@
 # SPStarView
 
-
-
 ### 属性
 
 `value` : 当前值 0 - 1
@@ -15,8 +13,6 @@
 `isFullStar` : 满颗星展示，默认 NO。
 
 `aspectRatio` : 宽高比
-
-
 
 ### 方法
 
