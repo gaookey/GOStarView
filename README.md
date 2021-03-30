@@ -24,5 +24,3 @@
 func update(_ touches: Set<UITouch>, with event: UIEvent?) { }
 ```
 
-
-

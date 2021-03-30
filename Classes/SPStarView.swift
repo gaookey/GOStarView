@@ -66,12 +66,12 @@ public class SPStarView: UIView {
     public var aspectRatio: CGFloat {
         get {
             guard let width = backImage?.size.width,
-                  let height = frontImage?.size.height else { return 0 }
+                  let height = frontImage?.size.height else { return 1 }
             return width / height
         }
     }
-    public var backImage = UIImage(named: "star_normal")
-    public var frontImage = UIImage(named: "star_select")
+    public var backImage = UIImage(named: "SPStarView.bundle/star_normal.png")
+    public var frontImage = UIImage(named: "SPStarView.bundle/star_select.png")
     
     
     private lazy var backImageView = UIImageView(image: backImage)
