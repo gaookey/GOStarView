@@ -1,12 +1,18 @@
 //
 //  SPStarView.swift
-//  demo
+//  SPStarView
 //
 //  Created by 高文立 on 2021/3/29.
 //
 
 import UIKit
 import SnapKit
+
+public enum SPStarType {
+    case none
+    case half // 半颗星
+    case full // 满颗星
+}
 
 public protocol SPStarViewDelegate: NSObjectProtocol {
     func didChangeValue(view: SPStarView, value: CGFloat)
@@ -38,62 +44,86 @@ public class SPStarView: UIView {
             value = getResultValue(value)
         }
     }
-    /// 动画时间，默认0
-    public var animationDuration: Double = 0
-    /// 允许的最小值（0 - 1），默认 0。
-    public var minValue: CGFloat = 0 {
-        didSet {
-            minValue = ((minValue < 0 ? 0 : minValue) > 1 ? 1 : minValue)
-        }
-    }
-    /// 半颗星展示，默认 NO。
-    public var isHalfStar = false {
-        willSet {
-            if newValue {
-                isFullStar = false
-            }
-        }
-    }
-    /// 满颗星展示，默认 NO。
-    public var isFullStar = false {
-        willSet {
-            if newValue {
-                isHalfStar = false
-            }
-        }
-    }
     /// 宽高比
-    public var aspectRatio: CGFloat {
+    public var viewRatio: CGFloat {
         get {
-            guard let width = backImage?.size.width,
-                  let height = frontImage?.size.height else { return 1 }
+            guard let width = frontImageView.image?.size.width,
+                  let height = frontImageView.image?.size.height,
+                  width > 0,
+                  height > 0 else { return 1 }
             return width / height
         }
     }
-    public var backImage = UIImage(named: "SPStarView.bundle/star_normal.png") {
-        willSet {
-            backImageView.image = newValue
-        }
-    }
-    public var frontImage = UIImage(named: "SPStarView.bundle/star_select.png") {
-        willSet {
-            frontImageView.image = newValue
-        }
-    }
     
+    ///
+    private var starType = SPStarType.none
+    /// 动画时间，默认0
+    private var animationDuration: Double = 0
+    /// 允许的最小值（0 - 1），默认 0。
+    private var minValue: CGFloat = 0
     
-    private lazy var backImageView = UIImageView(image: backImage)
-    private lazy var frontImageView = UIImageView(image: frontImage)
+    private lazy var backImageView: UIImageView = {
+        let view = UIImageView()
+        
+        let frameworkBundle = Bundle(for: SPStarView.self)
+        if let path = frameworkBundle.path(forResource: "SPStarView", ofType: "bundle"), let bundle = Bundle(path: path) {// CocoaPods static
+            view.image = UIImage(named: "star_normal", in: bundle, compatibleWith: nil)
+        }else if let bundle = Bundle.init(identifier: "com.eggswift.SPStarView") {// Carthage
+            view.image = UIImage(named: "star_normal", in: bundle, compatibleWith: nil)
+        } else if let bundle = Bundle.init(identifier: "org.cocoapods.SPStarView") {// CocoaPods
+            view.image = UIImage(named: "SPStarView.bundle/star_normal", in: bundle, compatibleWith: nil)
+        } else {// Manual
+            view.image = UIImage(named: "star_normal")
+        }
+        
+        return view
+    }()
+    private lazy var frontImageView: UIImageView = {
+        let view = UIImageView()
+        
+        let frameworkBundle = Bundle(for: SPStarView.self)
+        if let path = frameworkBundle.path(forResource: "SPStarView", ofType: "bundle"), let bundle = Bundle(path: path) {// CocoaPods static
+            view.image = UIImage(named: "star_select", in: bundle, compatibleWith: nil)
+        }else if let bundle = Bundle.init(identifier: "com.eggswift.SPStarView") {// Carthage
+            view.image = UIImage(named: "star_select", in: bundle, compatibleWith: nil)
+        } else if let bundle = Bundle.init(identifier: "org.cocoapods.SPStarView") {// CocoaPods
+            view.image = UIImage(named: "SPStarView.bundle/star_select", in: bundle, compatibleWith: nil)
+        } else {// Manual
+            view.image = UIImage(named: "star_select")
+        }
+        
+        return view
+    }()
     private lazy var contentView: UIView = {
         let view = UIView()
         view.clipsToBounds = true
         return view
     }()
     
-    public override init(frame: CGRect) {
+    public init(frame: CGRect = .zero,
+                value: CGFloat = 0,
+                minValue: CGFloat = 0,
+                type: SPStarType = .none,
+                backImage: UIImage = UIImage(),
+                frontImage: UIImage = UIImage(),
+                animationDuration: Double = 0
+    ) {
         super.init(frame: frame)
         
         clipsToBounds = true
+        
+        let result = (minValue < 0 ? 0 : minValue)
+        self.minValue = (result > 1 ? 1 : result)
+        self.starType = type
+        if backImage.size != .zero  {
+            self.backImageView.image = backImage;
+        }
+        if frontImage.size != .zero {
+            self.frontImageView.image = frontImage
+        }
+        self.animationDuration = animationDuration
+        self.value = getResultValue(value)
+        
         initView()
     }
     
@@ -131,7 +161,7 @@ extension SPStarView {
         }
         contentView.snp.makeConstraints { (make) in
             make.leading.top.bottom.equalTo(self)
-            make.width.equalTo(self.snp.width)
+            make.width.equalTo(self.snp.width).multipliedBy(self.value)
         }
         frontImageView.snp.makeConstraints { (make) in
             make.edges.equalTo(self)
@@ -139,21 +169,34 @@ extension SPStarView {
     }
     
     private func getResultValue(_ value: CGFloat) -> CGFloat {
-        var result = ((value < 0 ? 0 : value) > 1 ? 1 : value)
+        var result = (value < 0 ? 0 : value)
+        result = (result > 1 ? 1 : result)
+        result = (result < minValue) ? minValue : result
         
-        if isHalfStar || isFullStar { // 半颗星 & 满颗星
-            result = result * 5.0
+        guard result > 0, result < 1 else { return result }
+        guard starType == .full || starType == .half else { return result }
+        
+        let handler = NSDecimalNumberHandler(roundingMode: .plain, scale: 1, raiseOnExactness: false, raiseOnOverflow: false, raiseOnUnderflow: false, raiseOnDivideByZero: true)
+        result = CGFloat(NSDecimalNumber(value: Float(result)).multiplying(by: NSDecimalNumber(value: 5.0), withBehavior: handler).floatValue)
+        guard let last = String(format: "%.1f", result).components(separatedBy: ".").last, let lastObject = NSInteger(last) else { return result }
+        
+        if (lastObject == 0) { // = 0.0
             
-            if round(result) <= 0 { // 四舍五入 等于 0
-                result = 0;
-            } else if ceil(result) == round(result) { // 小数位大于 0.5
-                result = ceil(result)
-            } else { // 小数位小于 0.5
-                result = floor(result) + (isHalfStar ? 0.5 : 0)
+        } else if (lastObject > 0 && lastObject < 5) { // < 0.5
+            result = round(result);
+            if (starType == .half) {// 半颗星显示
+                result += 0.5;
+            } else if (starType == .full) { // 满颗星显示
+                result += 1;
             }
-            result = result / 5.0
+        } else if (lastObject > 5 && lastObject < 10) { // > 0.5
+            result = round(result);
+        } else { // = 0.5
+            if (starType == .full) {// 满颗星显示
+                result = round(result);
+            }
         }
         
-        return (result < minValue) ? minValue : result
+        return result / 5.0;
     }
 }
