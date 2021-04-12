@@ -1,6 +1,6 @@
 Pod::Spec.new do |spec|
   spec.name           = "SPStarView"
-  spec.version        = "1.0.6"
+  spec.version        = "1.0.7"
   spec.summary        = "A simple star rating view."
   spec.homepage       = "https://github.com/swiftprimer/SPStarView.git"
   spec.license        = "MIT"
