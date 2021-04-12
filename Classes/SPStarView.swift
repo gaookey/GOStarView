@@ -8,20 +8,20 @@
 import UIKit
 import SnapKit
 
-public enum SPStarType {
+@objc public enum SPStarType: Int {
     case none
     case half // 半颗星
     case full // 满颗星
 }
 
-public protocol SPStarViewDelegate: NSObjectProtocol {
+@objc public protocol SPStarViewDelegate: NSObjectProtocol {
     func didChangeValue(view: SPStarView, value: CGFloat)
 }
 extension SPStarViewDelegate {
     func didChangeValue(view: SPStarView, value: CGFloat) { }
 }
 
-public class SPStarView: UIView {
+@objcMembers public class SPStarView: UIView {
     
     weak open var delegate: SPStarViewDelegate?
     
@@ -30,7 +30,7 @@ public class SPStarView: UIView {
         willSet {
             let result = getResultValue(newValue)
             
-            UIView.animate(withDuration: animationDuration) {
+            UIView.animate(withDuration: duration) {
                 self.contentView.snp.remakeConstraints { (make) in
                     make.leading.top.bottom.equalTo(self)
                     make.width.equalTo(self.snp.width).multipliedBy(result)
@@ -47,22 +47,34 @@ public class SPStarView: UIView {
     /// 宽高比
     public var viewRatio: CGFloat {
         get {
-            guard let width = frontImageView.image?.size.width,
-                  let height = frontImageView.image?.size.height,
+            guard let width = selectedImageView.image?.size.width,
+                  let height = selectedImageView.image?.size.height,
                   width > 0,
                   height > 0 else { return 1 }
             return width / height
         }
     }
+    /// 动画时间，默认0
+    public var duration: Double = 0
+    /// 正常状态图片
+    public var normalImage: UIImage = UIImage() {
+        willSet {
+            normalImageView.image = newValue
+        }
+    }
+    /// 选中状态图片
+    public var selectedImage: UIImage = UIImage() {
+        willSet {
+            selectedImageView.image = newValue
+        }
+    }
     
     ///
     private var starType = SPStarType.none
-    /// 动画时间，默认0
-    private var animationDuration: Double = 0
     /// 允许的最小值（0 - 1），默认 0。
     private var minValue: CGFloat = 0
     
-    private lazy var backImageView: UIImageView = {
+    private lazy var normalImageView: UIImageView = {
         let view = UIImageView()
         
         let frameworkBundle = Bundle(for: SPStarView.self)
@@ -78,7 +90,7 @@ public class SPStarView: UIView {
         
         return view
     }()
-    private lazy var frontImageView: UIImageView = {
+    private lazy var selectedImageView: UIImageView = {
         let view = UIImageView()
         
         let frameworkBundle = Bundle(for: SPStarView.self)
@@ -103,11 +115,7 @@ public class SPStarView: UIView {
     public init(frame: CGRect = .zero,
                 value: CGFloat = 0,
                 minValue: CGFloat = 0,
-                type: SPStarType = .none,
-                backImage: UIImage = UIImage(),
-                frontImage: UIImage = UIImage(),
-                animationDuration: Double = 0
-    ) {
+                type: SPStarType = .none ) {
         super.init(frame: frame)
         
         clipsToBounds = true
@@ -115,13 +123,6 @@ public class SPStarView: UIView {
         let result = (minValue < 0 ? 0 : minValue)
         self.minValue = (result > 1 ? 1 : result)
         self.starType = type
-        if backImage.size != .zero  {
-            self.backImageView.image = backImage;
-        }
-        if frontImage.size != .zero {
-            self.frontImageView.image = frontImage
-        }
-        self.animationDuration = animationDuration
         self.value = getResultValue(value)
         
         initView()
@@ -152,18 +153,18 @@ extension SPStarView {
 extension SPStarView {
     
     private func initView() {
-        addSubview(backImageView)
+        addSubview(normalImageView)
         addSubview(contentView)
-        contentView .addSubview(frontImageView)
+        contentView .addSubview(selectedImageView)
         
-        backImageView.snp.makeConstraints { (make) in
+        normalImageView.snp.makeConstraints { (make) in
             make.edges.equalTo(self)
         }
         contentView.snp.makeConstraints { (make) in
             make.leading.top.bottom.equalTo(self)
             make.width.equalTo(self.snp.width).multipliedBy(self.value)
         }
-        frontImageView.snp.makeConstraints { (make) in
+        selectedImageView.snp.makeConstraints { (make) in
             make.edges.equalTo(self)
         }
     }
