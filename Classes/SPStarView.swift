@@ -25,26 +25,27 @@ extension SPStarViewDelegate {
     
     weak open var delegate: SPStarViewDelegate?
     
-    /// 当前值 0 - 1
+    /// 当前值 0 - 1。
     public var value: CGFloat = 0 {
-        willSet {
-            let result = getResultValue(newValue)
-            
-            UIView.animate(withDuration: duration) {
-                self.contentView.snp.remakeConstraints { (make) in
-                    make.leading.top.bottom.equalTo(self)
-                    make.width.equalTo(self.snp.width).multipliedBy(result)
-                }
-                self.layoutIfNeeded()
-            } completion: { _ in
-                self.delegate?.didChangeValue(view: self, value: result)
-            }
-        }
         didSet {
-            value = getResultValue(value)
+            layoutView()
         }
     }
-    /// 宽高比
+    /// ✨✨ 类型
+    public var starType = SPStarType.none {
+        didSet {
+            layoutView()
+        }
+    }
+    /// 允许的最小值（0 - 1），默认 0。
+    public var minValue: CGFloat = 0 {
+        didSet {
+            let result = (minValue < 0 ? 0 : minValue)
+            minValue = (result > 1 ? 1 : result)
+            layoutView()
+        }
+    }
+    /// 图片宽高比，以 selectedImageView 计算。
     public var viewRatio: CGFloat {
         get {
             guard let width = selectedImageView.image?.size.width,
@@ -68,11 +69,6 @@ extension SPStarViewDelegate {
             selectedImageView.image = newValue
         }
     }
-    
-    ///
-    private var starType = SPStarType.none
-    /// 允许的最小值（0 - 1），默认 0。
-    private var minValue: CGFloat = 0
     
     private lazy var normalImageView: UIImageView = {
         let view = UIImageView()
@@ -112,19 +108,20 @@ extension SPStarViewDelegate {
         return view
     }()
     
-    public init(frame: CGRect = .zero,
-                value: CGFloat = 0,
-                minValue: CGFloat = 0,
-                type: SPStarType = .none ) {
+    /// 初始化
+    /// - Parameter value: 初始值
+    public init(value: CGFloat = 0) {
+        super.init(frame: .zero)
+        
+        clipsToBounds = true
+        self.value = value
+        initView()
+    }
+    
+    override init(frame: CGRect) {
         super.init(frame: frame)
         
         clipsToBounds = true
-        
-        let result = (minValue < 0 ? 0 : minValue)
-        self.minValue = (result > 1 ? 1 : result)
-        self.starType = type
-        self.value = getResultValue(value)
-        
         initView()
     }
     
@@ -199,5 +196,19 @@ extension SPStarView {
         }
         
         return result / 5.0;
+    }
+    
+    private func layoutView() {
+        let result = getResultValue(value)
+        
+        UIView.animate(withDuration: duration) {
+            self.contentView.snp.remakeConstraints { (make) in
+                make.leading.top.bottom.equalTo(self)
+                make.width.equalTo(self.snp.width).multipliedBy(result)
+            }
+            self.layoutIfNeeded()
+        } completion: { _ in
+            self.delegate?.didChangeValue(view: self, value: result)
+        }
     }
 }
