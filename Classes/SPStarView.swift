@@ -70,8 +70,8 @@ public extension SPStarViewDelegate {
         }
     }
     
-    private lazy var normalImageView = UIImageView(image: UIImage(named: "star_normal"))
-    private lazy var selectedImageView = UIImageView(image: UIImage(named: "star_select"))
+    private lazy var normalImageView = UIImageView(image: UIImage(named: "SPStarView_star_normal", in: Bundle(for: SPStarView.self), compatibleWith: nil))
+    private lazy var selectedImageView = UIImageView(image: UIImage(named: "SPStarView_star_select", in: Bundle(for: SPStarView.self), compatibleWith: nil))
     
     private lazy var contentView: UIView = {
         let view = UIView()
