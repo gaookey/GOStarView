@@ -70,38 +70,9 @@ public class SPStarView: UIView {
         }
     }
     
-    private lazy var normalImageView: UIImageView = {
-        let view = UIImageView()
-        
-        let frameworkBundle = Bundle(for: SPStarView.self)
-        if let path = frameworkBundle.path(forResource: "SPStarView", ofType: "bundle"), let bundle = Bundle(path: path) {// CocoaPods static
-            view.image = UIImage(named: "star_normal", in: bundle, compatibleWith: nil)
-        }else if let bundle = Bundle.init(identifier: "com.eggswift.SPStarView") {// Carthage
-            view.image = UIImage(named: "star_normal", in: bundle, compatibleWith: nil)
-        } else if let bundle = Bundle.init(identifier: "org.cocoapods.SPStarView") {// CocoaPods
-            view.image = UIImage(named: "SPStarView.bundle/star_normal", in: bundle, compatibleWith: nil)
-        } else {// Manual
-            view.image = UIImage(named: "star_normal")
-        }
-        
-        return view
-    }()
-    private lazy var selectedImageView: UIImageView = {
-        let view = UIImageView()
-        
-        let frameworkBundle = Bundle(for: SPStarView.self)
-        if let path = frameworkBundle.path(forResource: "SPStarView", ofType: "bundle"), let bundle = Bundle(path: path) {// CocoaPods static
-            view.image = UIImage(named: "star_select", in: bundle, compatibleWith: nil)
-        }else if let bundle = Bundle.init(identifier: "com.eggswift.SPStarView") {// Carthage
-            view.image = UIImage(named: "star_select", in: bundle, compatibleWith: nil)
-        } else if let bundle = Bundle.init(identifier: "org.cocoapods.SPStarView") {// CocoaPods
-            view.image = UIImage(named: "SPStarView.bundle/star_select", in: bundle, compatibleWith: nil)
-        } else {// Manual
-            view.image = UIImage(named: "star_select")
-        }
-        
-        return view
-    }()
+    private lazy var normalImageView = UIImageView(image: UIImage(named: "star_normal"))
+    private lazy var selectedImageView = UIImageView(image: UIImage(named: "star_select"))
+    
     private lazy var contentView: UIView = {
         let view = UIView()
         view.clipsToBounds = true
