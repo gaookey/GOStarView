@@ -8,20 +8,20 @@
 import UIKit
 import SnapKit
 
-public enum SPStarType {
+@objc public enum SPStarType: Int {
     case none
     case half // 半颗星
     case full // 满颗星
 }
 
-public protocol SPStarViewDelegate: NSObjectProtocol {
+@objc public protocol SPStarViewDelegate: NSObjectProtocol {
     func didChangeValue(view: SPStarView, value: CGFloat)
 }
 public extension SPStarViewDelegate {
     func didChangeValue(view: SPStarView, value: CGFloat) { }
 }
 
-public class SPStarView: UIView {
+@objcMembers public class SPStarView: UIView {
     
     weak open var delegate: SPStarViewDelegate?
     
