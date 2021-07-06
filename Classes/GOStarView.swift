@@ -1,6 +1,6 @@
 //
-//  SPStarView.swift
-//  SPStarView
+//  GOStarView.swift
+//  GOStarView
 //
 //  Created by 高文立 on 2021/3/29.
 //
@@ -8,22 +8,19 @@
 import UIKit
 import SnapKit
 
-@objc public enum SPStarType: Int {
+@objc public enum GOStarType: Int {
     case none
     case half // 半颗星
     case full // 满颗星
 }
 
-@objc public protocol SPStarViewDelegate: NSObjectProtocol {
-    func didChangeValue(view: SPStarView, value: CGFloat)
-}
-public extension SPStarViewDelegate {
-    func didChangeValue(view: SPStarView, value: CGFloat) { }
+@objc public protocol GOStarViewDelegate: NSObjectProtocol {
+    @objc optional func didChangeValue(view: GOStarView, value: CGFloat)
 }
 
-@objcMembers public class SPStarView: UIView {
+@objcMembers public class GOStarView: UIView {
     
-    weak open var delegate: SPStarViewDelegate?
+    weak open var delegate: GOStarViewDelegate?
     
     /// 当前值 0 - 1。
     public var value: CGFloat = 0 {
@@ -32,7 +29,7 @@ public extension SPStarViewDelegate {
         }
     }
     /// ✨✨ 类型
-    public var starType = SPStarType.none {
+    public var starType = GOStarType.none {
         didSet {
             layoutView()
         }
@@ -70,8 +67,8 @@ public extension SPStarViewDelegate {
         }
     }
     
-    private lazy var normalImageView = UIImageView(image: UIImage(named: "SPStarView_star_normal", in: Bundle(for: SPStarView.self), compatibleWith: nil))
-    private lazy var selectedImageView = UIImageView(image: UIImage(named: "SPStarView_star_select", in: Bundle(for: SPStarView.self), compatibleWith: nil))
+    private lazy var normalImageView = UIImageView(image: UIImage(named: "GOStarView_star_normal", in: Bundle(for: GOStarView.self), compatibleWith: nil))
+    private lazy var selectedImageView = UIImageView(image: UIImage(named: "GOStarView_star_select", in: Bundle(for: GOStarView.self), compatibleWith: nil))
     
     private lazy var contentView: UIView = {
         let view = UIView()
@@ -102,7 +99,7 @@ public extension SPStarViewDelegate {
 }
 
 // MARK: - public method
-extension SPStarView {
+extension GOStarView {
     
     public func update(_ touches: Set<UITouch>, with event: UIEvent?) {
         let touch = touches.first
@@ -118,7 +115,7 @@ extension SPStarView {
 }
 
 // MARK: - private method
-extension SPStarView {
+extension GOStarView {
     
     private func initView() {
         addSubview(normalImageView)
@@ -179,7 +176,7 @@ extension SPStarView {
             }
             self.layoutIfNeeded()
         } completion: { _ in
-            self.delegate?.didChangeValue(view: self, value: result)
+            self.delegate?.didChangeValue?(view: self, value: result)
         }
     }
 }

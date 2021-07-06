@@ -1,4 +1,4 @@
-# SPStarView
+# GOStarView
 
 ### 评论星星
 
